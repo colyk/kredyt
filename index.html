@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Kredytu Hipotecznego PL</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f7fb;
+    margin:0;
+    padding:20px;
+    color:#222;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    margin-bottom:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+h1,h2{
+    margin-top:0;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
+
+label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button{
+    margin-top:15px;
+    padding:12px 18px;
+    border:none;
+    border-radius:10px;
+    background:#1f6feb;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1557b0;
+}
+
+.result{
+    font-size:18px;
+    margin-top:10px;
+}
+
+.highlight{
+    font-size:24px;
+    font-weight:bold;
+    color:#1f6feb;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th, td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:right;
+}
+
+th{
+    background:#f0f3f8;
+}
+
+.warning{
+    padding:12px;
+    background:#fff3cd;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.good{
+    background:#d1e7dd;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Kalkulator Kredytu Hipotecznego — Polska 2026</h1>
+
+<div class="card">
+<h2>Dane kredytu</h2>
+
+<div class="grid">
+
+<div>
+<label>Cena nieruchomości (PLN)</label>
+<input type="number" id="propertyPrice" value="700000">
+</div>
+
+<div>
+<label>Wkład własny (PLN)</label>
+<input type="number" id="downPayment" value="140000">
+</div>
+
+<div>
+<label>Oprocentowanie (%)</label>
+<input type="number" id="interest" value="5.8" step="0.1">
+</div>
+
+<div>
+<label>Okres kredytu (lata)</label>
+<input type="number" id="years" value="30">
+</div>
+
+<div>
+<label>Miesięczna nadpłata (PLN)</label>
+<input type="number" id="overpayment" value="1000">
+</div>
+
+<div>
+<label>Typ nadpłaty</label>
+<select id="overpaymentType">
+<option value="shorten">Skracanie okresu</option>
+<option value="reduce">Zmniejszanie raty</option>
+</select>
+</div>
+
+</div>
+
+<button onclick="calculate()">Oblicz</button>
+
+</div>
+
+<div class="card">
+<h2>Wyniki</h2>
+
+<div class="grid">
+
+<div>
+<div>Kwota kredytu</div>
+<div class="highlight" id="loanAmountResult"></div>
+</div>
+
+<div>
+<div>Rata miesięczna</div>
+<div class="highlight" id="monthlyPaymentResult"></div>
+</div>
+
+<div>
+<div>Łączne odsetki</div>
+<div class="highlight" id="interestResult"></div>
+</div>
+
+<div>
+<div>Całkowity koszt</div>
+<div class="highlight" id="totalResult"></div>
+</div>
+
+</div>
+
+<div id="ltvInfo"></div>
+<div id="overpaymentInfo"></div>
+
+</div>
+
+<div class="card">
+<h2>Zdolność kredytowa (szacunek)</h2>
+
+<div class="grid">
+
+<div>
+<label>Miesięczny dochód netto (PLN)</label>
+<input type="number" id="income" value="12000">
+</div>
+
+<div>
+<label>Maksymalny % dochodu na ratę</label>
+<input type="number" id="ratio" value="40">
+</div>
+
+</div>
+
+<button onclick="calculateCapacity()">Oblicz zdolność</button>
+
+<div class="result" id="capacityResult"></div>
+
+</div>
+
+<div class="card">
+<h2>Wykres salda kredytu</h2>
+<canvas id="loanChart"></canvas>
+</div>
+
+<div class="card">
+<h2>Harmonogram</h2>
+
+<div style="overflow:auto; max-height:500px;">
+<table id="scheduleTable">
+<thead>
+<tr>
+<th>Miesiąc</th>
+<th>Rata</th>
+<th>Kapitał</th>
+<th>Odsetki</th>
+<th>Pozostało</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+</div>
+
+<div class="card">
+<h2>Ważne informacje</h2>
+
+<div class="warning">
+<b>Wkład własny:</b><br>
+- standard: 20%<br>
+- minimum w części banków: 10%<br>
+- poniżej 20% zwykle oznacza wyższy koszt kredytu
+</div>
+
+<div class="good">
+<b>Nadpłaty:</b><br>
+- skracanie okresu zwykle daje większe oszczędności<br>
+- wcześniejsze nadpłaty dają największy efekt<br>
+- po 3 latach większość banków nie pobiera prowizji
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let chart;
+
+function calculate(){
+
+    const propertyPrice = parseFloat(document.getElementById('propertyPrice').value);
+    const downPayment = parseFloat(document.getElementById('downPayment').value);
+    const annualInterest = parseFloat(document.getElementById('interest').value);
+    const years = parseFloat(document.getElementById('years').value);
+    const monthlyOverpayment = parseFloat(document.getElementById('overpayment').value);
+    const overpaymentType = document.getElementById('overpaymentType').value;
+
+    const loanAmount = propertyPrice - downPayment;
+
+    const monthlyRate = annualInterest / 100 / 12;
+    const totalMonths = years * 12;
+
+    const payment =
+        loanAmount *
+        (
+            monthlyRate *
+            Math.pow(1 + monthlyRate, totalMonths)
+        ) /
+        (
+            Math.pow(1 + monthlyRate, totalMonths) - 1
+        );
+
+    let balance = loanAmount;
+
+    let totalInterest = 0;
+
+    const tbody = document.querySelector('#scheduleTable tbody');
+    tbody.innerHTML = "";
+
+    const balances = [];
+    const labels = [];
+
+    let currentPayment = payment;
+    let month = 0;
+
+    while(balance > 1 && month < 1000){
+
+        month++;
+
+        const interestPart = balance * monthlyRate;
+
+        let capitalPart = currentPayment - interestPart;
+
+        let extra = monthlyOverpayment;
+
+        if(balance < capitalPart + extra){
+            extra = balance - capitalPart;
+        }
+
+        balance -= capitalPart + extra;
+
+        totalInterest += interestPart;
+
+        balances.push(balance > 0 ? balance : 0);
+        labels.push(month);
+
+        if(overpaymentType === 'reduce'){
+            const remainingMonths = totalMonths - month;
+
+            if(remainingMonths > 1){
+                currentPayment =
+                    balance *
+                    (
+                        monthlyRate *
+                        Math.pow(1 + monthlyRate, remainingMonths)
+                    ) /
+                    (
+                        Math.pow(1 + monthlyRate, remainingMonths) - 1
+                    );
+            }
+        }
+
+        const row = `
+        <tr>
+            <td>${month}</td>
+            <td>${(currentPayment + extra).toFixed(2)}</td>
+            <td>${(capitalPart + extra).toFixed(2)}</td>
+            <td>${interestPart.toFixed(2)}</td>
+            <td>${balance.toFixed(2)}</td>
+        </tr>
+        `;
+
+        tbody.innerHTML += row;
+    }
+
+    document.getElementById('loanAmountResult').innerText =
+        loanAmount.toLocaleString('pl-PL') + " PLN";
+
+    document.getElementById('monthlyPaymentResult').innerText =
+        payment.toFixed(2) + " PLN";
+
+    document.getElementById('interestResult').innerText =
+        totalInterest.toFixed(2) + " PLN";
+
+    document.getElementById('totalResult').innerText =
+        (loanAmount + totalInterest).toFixed(2) + " PLN";
+
+    const ltv = (loanAmount / propertyPrice) * 100;
+
+    let ltvText = "";
+
+    if(ltv <= 80){
+        ltvText = "Bardzo dobry wkład własny.";
+    } else if(ltv <= 90){
+        ltvText = "Możliwy kredyt, ale może być droższy.";
+    } else {
+        ltvText = "Wiele banków może odrzucić wniosek.";
+    }
+
+    document.getElementById('ltvInfo').innerHTML =
+        `<div class="result">LTV: ${ltv.toFixed(1)}% — ${ltvText}</div>`;
+
+    document.getElementById('overpaymentInfo').innerHTML =
+        `<div class="result">
+        Kredyt zostanie spłacony po około ${month} miesiącach
+        (${(month/12).toFixed(1)} lat).
+        </div>`;
+
+    renderChart(labels, balances);
+}
+
+function renderChart(labels, balances){
+
+    const ctx = document.getElementById('loanChart');
+
+    if(chart){
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx, {
+        type:'line',
+        data:{
+            labels:labels,
+            datasets:[{
+                label:'Pozostały kapitał',
+                data:balances
+            }]
+        }
+    });
+}
+
+function calculateCapacity(){
+
+    const income = parseFloat(document.getElementById('income').value);
+    const ratio = parseFloat(document.getElementById('ratio').value);
+
+    const maxInstallment = income * (ratio/100);
+
+    const approxCredit = maxInstallment * 180;
+
+    document.getElementById('capacityResult').innerHTML =
+        `
+        <div class="highlight">
+        Szacowana maksymalna rata:
+        ${maxInstallment.toFixed(0)} PLN
+        </div>
+
+        <div class="result">
+        Szacowana zdolność kredytowa:
+        około ${approxCredit.toLocaleString('pl-PL')} PLN
+        </div>
+        `;
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>
