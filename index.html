@@ -4,202 +4,189 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Zaawansowany Kalkulator Kredytu Hipotecznego PL 2026</title>
+<title>Nasz dom - kalkulator kredytu</title>
+<link rel="stylesheet" href="style.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js" defer></script>
 
-<style>
-
-body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    background:#f4f7fb;
-    color:#222;
-}
-
-.container{
-    max-width:1400px;
-    margin:auto;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    border-radius:18px;
-    padding:20px;
-    margin-bottom:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-
-h1,h2,h3{
-    margin-top:0;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:16px;
-}
-
-label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:bold;
-}
-
-input,select{
-    width:100%;
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-}
-
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:12px;
-    background:#1d4ed8;
-    color:white;
-    cursor:pointer;
-    font-size:16px;
-    margin-top:15px;
-}
-
-button:hover{
-    background:#163fae;
-}
-
-.big{
-    font-size:28px;
-    font-weight:bold;
-    color:#1d4ed8;
-}
-
-.small{
-    color:#666;
-    font-size:14px;
-}
-
-.result-box{
-    background:#f7f9ff;
-    border-radius:12px;
-    padding:16px;
-}
-
-.good{
-    background:#d1fae5;
-    padding:14px;
-    border-radius:12px;
-}
-
-.warn{
-    background:#fef3c7;
-    padding:14px;
-    border-radius:12px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:right;
-}
-
-th{
-    background:#f1f5f9;
-}
-
-.left{
-    text-align:left;
-}
-
-.scroll{
-    overflow:auto;
-    max-height:600px;
-}
-
-.summary-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-}
-
-</style>
 </head>
 
 <body>
 
-<div class="container">
+<main class="container">
 
-<h1>Kalkulator Kredytu Hipotecznego Polska 2026</h1>
-
-<div class="card">
-
-<h2>Dane kredytu</h2>
-
-<div class="grid">
-
+<header class="hero">
 <div>
-<label>Cena nieruchomości</label>
+<p class="eyebrow">Plan dla nas</p>
+<h1>Nasz wymarzony dom</h1>
+<p class="hero-copy">Spokojnie sprawdzamy, czy marzenie mieści się w ratach, oszczędnościach i czasie.</p>
+</div>
+<div class="hero-note" aria-label="Prywatny plan domu">
+<span>dom</span>
+<strong>plan dla nas</strong>
+</div>
+</header>
+
+<div id="validationWarning" class="warning-box hidden"></div>
+
+<section class="setup-grid">
+<div class="panel input-panel">
+<div class="section-heading">
+<p class="eyebrow">Dom, który planujemy</p>
+<h2>Najpierw ustalamy bazę</h2>
+</div>
+
+<div class="form-grid">
+<div class="field">
+<label for="propertyPrice">Cena nieruchomości</label>
+<div class="input-affix">
 <input type="number" id="propertyPrice" value="800000">
+<span>PLN</span>
+</div>
 </div>
 
-<div>
-<label>Wkład własny</label>
-<input type="number" id="downPayment" value="160000">
-</div>
-
-<div>
-<label>Oprocentowanie (%)</label>
+<div class="field">
+<label for="interestRate">Oprocentowanie</label>
+<div class="input-affix">
 <input type="number" id="interestRate" value="6.2" step="0.1">
+<span>%</span>
+</div>
 </div>
 
-<div>
-<label>Okres kredytu (lata)</label>
+<div class="field">
+<label for="years">Okres kredytu</label>
+<div class="input-affix">
 <input type="number" id="years" value="30">
+<span>lat</span>
+</div>
 </div>
 
-<div>
-<label>Data startu kredytu</label>
+<div class="field">
+<label for="startDate">Planowany start kredytu</label>
 <input type="date" id="startDate">
 </div>
 
-<div>
-<label>Tryb nadpłaty</label>
+<div class="field">
+<label for="strategy">Po nadpłacie</label>
 <select id="strategy">
-<option value="shorten">Skracanie okresu</option>
-<option value="reduce">Zmniejszanie raty</option>
+<option value="shorten">Skracamy okres</option>
+<option value="reduce">Zmniejszamy ratę</option>
 </select>
 </div>
-
+</div>
 </div>
 
+<div class="panel contribution-panel">
+<div class="section-heading">
+<p class="eyebrow">Wkład własny</p>
+<h2>Ile chcemy wnieść sami?</h2>
 </div>
 
-<div class="card">
+<div class="down-payment-choice" aria-label="Wybierz wkład własny">
+<button type="button" class="choice-button" data-down-payment-mode="10">10%</button>
+<button type="button" class="choice-button active" data-down-payment-mode="20">20%</button>
+<button type="button" class="choice-button" data-down-payment-mode="manual">Własna kwota</button>
+</div>
 
-<h2>Kalkulator nadpłat</h2>
+<div class="planning-layout">
+<div class="form-grid compact">
+<div class="field">
+<label for="downPayment">Wybrany wkład własny</label>
+<div class="input-affix">
+<input type="number" id="downPayment" value="160000">
+<span>PLN</span>
+</div>
+</div>
 
-<div class="grid">
+<div class="field">
+<label for="currentSavings">Aktualne oszczędności</label>
+<div class="input-affix">
+<input type="number" id="currentSavings" value="10000">
+<span>PLN</span>
+</div>
+</div>
 
-<div>
-<label>Miesięczna nadpłata</label>
+<div class="field">
+<label for="monthlySavings">Miesięcznie odkładamy</label>
+<div class="input-affix">
+<input type="number" id="monthlySavings" value="1000">
+<span>PLN</span>
+</div>
+</div>
+</div>
+
+<div id="downPaymentPlanResult" class="result-box plan-result"></div>
+</div>
+</div>
+</section>
+
+<aside class="panel summary-panel">
+<div class="section-heading">
+<p class="eyebrow">Czy to się spina?</p>
+<h2>Plan na dziś</h2>
+</div>
+
+<div class="hero-result">
+<div class="small">Rata na dziś</div>
+<div class="big" id="monthlyPayment"></div>
+</div>
+
+<div class="summary-grid">
+<div class="result-box">
+<div class="small">Potrzebny kredyt</div>
+<div class="big" id="loanAmount"></div>
+</div>
+
+<div class="result-box">
+<div class="small">Nasz wkład</div>
+<div class="big" id="downPaymentPercent"></div>
+</div>
+
+<div class="result-box">
+<div class="small">LTV</div>
+<div class="big" id="ltv"></div>
+</div>
+
+<div class="result-box">
+<div class="small">Koszt odsetek</div>
+<div class="big" id="interestCost"></div>
+</div>
+
+<div class="result-box">
+<div class="small">Koniec kredytu</div>
+<div class="big" id="endDate"></div>
+</div>
+</div>
+
+<div id="downPaymentWarning" class="warn hidden"></div>
+</aside>
+
+<section class="panel">
+<div class="section-heading">
+<p class="eyebrow">Nadpłaty</p>
+<h2>Co przyspieszy spłatę?</h2>
+</div>
+
+<div class="form-grid compact">
+<div class="field">
+<label for="monthlyOverpayment">Miesięczna nadpłata</label>
+<div class="input-affix">
 <input type="number" id="monthlyOverpayment" value="1000">
+<span>PLN</span>
+</div>
 </div>
 
-<div>
-<label>Roczna nadpłata</label>
+<div class="field">
+<label for="yearlyOverpayment">Roczna nadpłata</label>
+<div class="input-affix">
 <input type="number" id="yearlyOverpayment" value="12000">
+<span>PLN</span>
+</div>
 </div>
 
-<div>
-<label>Miesiąc rocznej nadpłaty</label>
+<div class="field">
+<label for="yearlyMonth">Miesiąc rocznej nadpłaty</label>
 <select id="yearlyMonth">
 <option value="1">Styczeń</option>
 <option value="2">Luty</option>
@@ -215,67 +202,48 @@ th{
 <option value="12">Grudzień</option>
 </select>
 </div>
-
 </div>
 
-<button onclick="calculate()">Oblicz</button>
+<div id="comparisonBox" class="comparison-box"></div>
+</section>
 
+<section class="panel">
+<div class="section-heading split-heading">
+<div>
+<p class="eyebrow">Widok</p>
+<h2>Wykresy</h2>
+</div>
+<div class="tab-list" aria-label="Wybierz wykres">
+<button type="button" class="tab-button active" data-chart-tab="debt">Dług</button>
+<button type="button" class="tab-button" data-chart-tab="savings">Wkład</button>
+<button type="button" class="tab-button" data-chart-tab="interest">Odsetki</button>
+</div>
 </div>
 
-<div class="card">
-
-<h2>Podsumowanie</h2>
-
-<div class="summary-grid">
-
-<div class="result-box">
-<div class="small">Kwota kredytu</div>
-<div class="big" id="loanAmount"></div>
-</div>
-
-<div class="result-box">
-<div class="small">Rata bazowa</div>
-<div class="big" id="monthlyPayment"></div>
-</div>
-
-<div class="result-box">
-<div class="small">Koszt odsetek</div>
-<div class="big" id="interestCost"></div>
-</div>
-
-<div class="result-box">
-<div class="small">Data końca kredytu</div>
-<div class="big" id="endDate"></div>
-</div>
-
-</div>
-
-<div id="comparisonBox" style="margin-top:20px;"></div>
-
-</div>
-
-<div class="card">
-
-<h2>Wykres 1 — Pozostały dług w czasie</h2>
+<div class="chart-panel active" data-chart-panel="debt">
 <canvas id="debtChart"></canvas>
-
 </div>
 
-<div class="card">
+<div class="chart-panel" data-chart-panel="savings">
+<canvas id="savingsChart"></canvas>
+</div>
 
-<h2>Wykres 2 — Zapłacone odsetki w czasie</h2>
+<div class="chart-panel" data-chart-panel="interest">
 <canvas id="interestChart"></canvas>
-
 </div>
+</section>
 
-<div class="card">
-
+<section class="panel">
+<div class="section-heading split-heading">
+<div>
+<p class="eyebrow">Szczegóły</p>
 <h2>Harmonogram spłaty</h2>
+</div>
+<button type="button" class="secondary-button" id="scheduleToggle">Pokaż cały harmonogram</button>
+</div>
 
 <div class="scroll">
-
 <table>
-
 <thead>
 <tr>
 <th class="left">Data</th>
@@ -286,378 +254,12 @@ th{
 <th>Pozostało</th>
 </tr>
 </thead>
-
-<tbody id="scheduleBody">
-
-</tbody>
-
+<tbody id="scheduleBody"></tbody>
 </table>
-
 </div>
+</section>
 
-</div>
-
-</div>
-
-<script>
-
-document.getElementById('startDate').value =
-new Date().toISOString().split('T')[0];
-
-let debtChart;
-let interestChart;
-
-function monthlyInstallment(amount, monthlyRate, months){
-
-    return amount *
-    (
-        monthlyRate * Math.pow(1 + monthlyRate, months)
-    )
-    /
-    (
-        Math.pow(1 + monthlyRate, months) - 1
-    );
-}
-
-function formatMoney(x){
-    return x.toLocaleString('pl-PL', {
-        maximumFractionDigits:0
-    }) + " PLN";
-}
-
-function calculateScenario(type){
-
-    const propertyPrice =
-        parseFloat(document.getElementById('propertyPrice').value);
-
-    const downPayment =
-        parseFloat(document.getElementById('downPayment').value);
-
-    const interest =
-        parseFloat(document.getElementById('interestRate').value);
-
-    const years =
-        parseFloat(document.getElementById('years').value);
-
-    const strategy =
-        document.getElementById('strategy').value;
-
-    const monthlyExtra =
-        type === 'monthly'
-        ? parseFloat(document.getElementById('monthlyOverpayment').value)
-        : 0;
-
-    const yearlyExtra =
-        type === 'yearly'
-        ? parseFloat(document.getElementById('yearlyOverpayment').value)
-        : 0;
-
-    const yearlyMonth =
-        parseInt(document.getElementById('yearlyMonth').value);
-
-    const loanAmount = propertyPrice - downPayment;
-
-    const monthlyRate = interest / 100 / 12;
-
-    const totalMonths = years * 12;
-
-    let payment =
-        monthlyInstallment(
-            loanAmount,
-            monthlyRate,
-            totalMonths
-        );
-
-    let balance = loanAmount;
-
-    let month = 0;
-
-    let totalInterest = 0;
-
-    const balances = [];
-    const interests = [];
-    const labels = [];
-
-    const rows = [];
-
-    const startDate =
-        new Date(document.getElementById('startDate').value);
-
-    while(balance > 1 && month < 1000){
-
-        month++;
-
-        const interestPart = balance * monthlyRate;
-
-        let capitalPart = payment - interestPart;
-
-        let extra = monthlyExtra;
-
-        const currentDate =
-            new Date(startDate);
-
-        currentDate.setMonth(startDate.getMonth() + month);
-
-        if(type === 'yearly'){
-
-            const currentMonth =
-                currentDate.getMonth() + 1;
-
-            if(currentMonth === yearlyMonth){
-                extra += yearlyExtra;
-            }
-        }
-
-        if(balance < capitalPart + extra){
-            extra = balance - capitalPart;
-        }
-
-        balance -= capitalPart + extra;
-
-        totalInterest += interestPart;
-
-        balances.push(Math.max(balance,0));
-        interests.push(totalInterest);
-        labels.push(
-            currentDate.toLocaleDateString('pl-PL', {
-                month:'short',
-                year:'numeric'
-            })
-        );
-
-        rows.push({
-            date: currentDate.toLocaleDateString('pl-PL'),
-            payment: payment,
-            capital: capitalPart,
-            interest: interestPart,
-            extra: extra,
-            balance: balance
-        });
-
-        if(strategy === 'reduce'){
-
-            const remainingMonths =
-                totalMonths - month;
-
-            if(remainingMonths > 1){
-
-                payment =
-                    monthlyInstallment(
-                        balance,
-                        monthlyRate,
-                        remainingMonths
-                    );
-            }
-        }
-    }
-
-    return {
-        loanAmount,
-        payment,
-        totalInterest,
-        months:month,
-        balances,
-        interests,
-        labels,
-        rows
-    };
-}
-
-function calculate(){
-
-    const base =
-        calculateScenario('none');
-
-    const monthly =
-        calculateScenario('monthly');
-
-    const yearly =
-        calculateScenario('yearly');
-
-    document.getElementById('loanAmount').innerText =
-        formatMoney(base.loanAmount);
-
-    document.getElementById('monthlyPayment').innerText =
-        formatMoney(base.payment);
-
-    document.getElementById('interestCost').innerText =
-        formatMoney(monthly.totalInterest);
-
-    const end =
-        new Date(document.getElementById('startDate').value);
-
-    end.setMonth(end.getMonth() + monthly.months);
-
-    document.getElementById('endDate').innerText =
-        end.toLocaleDateString('pl-PL');
-
-    const savingsMonthly =
-        base.totalInterest - monthly.totalInterest;
-
-    const savingsYearly =
-        base.totalInterest - yearly.totalInterest;
-
-    document.getElementById('comparisonBox').innerHTML = `
-
-    <div class="grid">
-
-        <div class="good">
-        <h3>Nadpłata miesięczna</h3>
-        <p>Oszczędność odsetek:
-        <b>${formatMoney(savingsMonthly)}</b></p>
-
-        <p>Skrócenie kredytu:
-        <b>${(base.months - monthly.months)} miesięcy</b></p>
-        </div>
-
-        <div class="warn">
-        <h3>Nadpłata roczna</h3>
-        <p>Oszczędność odsetek:
-        <b>${formatMoney(savingsYearly)}</b></p>
-
-        <p>Skrócenie kredytu:
-        <b>${(base.months - yearly.months)} miesięcy</b></p>
-        </div>
-
-    </div>
-
-    `;
-
-    renderDebtChart(base, monthly, yearly);
-
-    renderInterestChart(base, monthly, yearly);
-
-    renderTable(monthly.rows);
-}
-
-function renderDebtChart(base, monthly, yearly){
-
-    const ctx =
-        document.getElementById('debtChart');
-
-    if(debtChart){
-        debtChart.destroy();
-    }
-
-    debtChart = new Chart(ctx, {
-
-        type:'line',
-
-        data:{
-            labels: base.labels,
-
-            datasets:[
-
-                {
-                    label:'Bez nadpłat',
-                    data:base.balances
-                },
-
-                {
-                    label:'Nadpłata miesięczna',
-                    data:monthly.balances
-                },
-
-                {
-                    label:'Nadpłata roczna',
-                    data:yearly.balances
-                }
-
-            ]
-        },
-
-        options:{
-            responsive:true,
-            interaction:{
-                mode:'index',
-                intersect:false
-            }
-        }
-
-    });
-}
-
-function renderInterestChart(base, monthly, yearly){
-
-    const ctx =
-        document.getElementById('interestChart');
-
-    if(interestChart){
-        interestChart.destroy();
-    }
-
-    interestChart = new Chart(ctx, {
-
-        type:'line',
-
-        data:{
-            labels: base.labels,
-
-            datasets:[
-
-                {
-                    label:'Bez nadpłat',
-                    data:base.interests
-                },
-
-                {
-                    label:'Nadpłata miesięczna',
-                    data:monthly.interests
-                },
-
-                {
-                    label:'Nadpłata roczna',
-                    data:yearly.interests
-                }
-
-            ]
-        },
-
-        options:{
-            responsive:true,
-            interaction:{
-                mode:'index',
-                intersect:false
-            }
-        }
-
-    });
-}
-
-function renderTable(rows){
-
-    const body =
-        document.getElementById('scheduleBody');
-
-    body.innerHTML = "";
-
-    rows.forEach(r => {
-
-        body.innerHTML += `
-
-        <tr>
-
-        <td class="left">${r.date}</td>
-
-        <td>${r.payment.toFixed(0)}</td>
-
-        <td>${r.capital.toFixed(0)}</td>
-
-        <td>${r.interest.toFixed(0)}</td>
-
-        <td>${r.extra.toFixed(0)}</td>
-
-        <td>${r.balance.toFixed(0)}</td>
-
-        </tr>
-
-        `;
-    });
-}
-
-calculate();
-
-</script>
+</main>
 
 </body>
 </html>
